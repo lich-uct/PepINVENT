@@ -50,18 +50,13 @@ class Sampling:
         return masked_peptides
 
     def _create_report(self, results: Dict[str, List[SampledSequencesDTO]]) -> pd.DataFrame:
-        summary = []
         dataframe = pd.DataFrame(columns=['Input', 'Output', 'NLLs'])
         for key in results.keys():
             outputs = [dto.output for dto in results[key]]
             nlls = [dto.nll for dto in results[key]]
-            # peptides = [self._chemistry.fill_source_peptide(key, output) for output in outputs]
+
             new_row = {'Input': key, 'Output': outputs, 'NLLs': nlls}
-            #  = {'Input': key, 'Peptide': ",".join(peptides), 'Output': ",".join(outputs), 'NLLs': nlls}
-            # dataframe["Input"].append(key)
-            # dataframe["Peptide"].append(",".join(peptides))
-            # dataframe["Output"].append(",".join(outputs))
-            # dataframe["Nlls"].append(",".join(nlls))
+
             dataframe = dataframe.append(new_row, ignore_index=True)
 
         column_labels = [f'Generated_smi_{x}' for x in range(1, len(results[key]) + 1)]
@@ -69,12 +64,8 @@ class Sampling:
         dataframe = pd.concat([dataframe, split], axis=1)
         dataframe = dataframe.drop('Output', axis=1)
 
-        # for peptide, output, nll in zip(peptides, outputs, nlls):
-            #     report_line = f"{key},{peptide},{output},{nll}\n"
-            #     summary.append(report_line)
+
         return dataframe
 
     def _save_reports(self, output: pd.DataFrame):
         output.to_csv(self._config.results_output)
-        # with open(self._config.results_output, "w") as o:
-        #     o.writelines(output)

@@ -60,12 +60,12 @@ def likelihood_calculation(model, src, src_mask, ys, grad=False):
     loss = torch.nn.NLLLoss(reduction="none", ignore_index=0)
     
     if grad == True:
-        model.train() # this is used for agent
+        model.execute()  # this is used for agent
         encoder_outputs = model.encode(src, src_mask)
         out = model.decode(encoder_outputs, src_mask, Variable(ys), Variable(subsequent_mask(ys.size(1)).type_as(src.data)))
         log_prob = model.generator(out).transpose(1, 2) #(batch, seq, voc) 
     else:
-        model.eval() # this is used for prior which dont need to learn
+        model.eval() # this is used for prior
         with torch.no_grad():
             encoder_outputs = model.encode(src, src_mask)
             out = model.decode(encoder_outputs, src_mask, Variable(ys),
@@ -73,5 +73,4 @@ def likelihood_calculation(model, src, src_mask, ys, grad=False):
             log_prob = model.generator(out).transpose(1, 2) #(batch, seq, voc) 
     nll = loss(log_prob[:, :, :-1], ys[:, 1:]).sum(dim=1)
     return nll
-    # :-1 because it also calculates the next token likelihood of input ys
-    # 1: because the starting token is always the same "1" 
+

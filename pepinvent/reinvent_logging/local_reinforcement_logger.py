@@ -3,7 +3,7 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-#from pepinvent import reinvent_logging as lu
+
 import reinvent_chemistry.logging as lu
 import torch
 from rdkit import Chem
@@ -68,7 +68,7 @@ class LocalReinforcementLogger(BaseReinforcementLogger):
 
     def _visualize_structures(self, smiles, score, step, score_summary: FinalSummary):
 
-        list_of_mols, legends, pattern = self._check_for_invalid_mols_and_create_legends(smiles, score, score_summary)
+        list_of_mols, legends, pattern = self._check_for_invalid_mols_and_create_legends(smiles, score)
         try:
             lu.add_mols(self._summary_writer, "Molecules from epoch", list_of_mols[:self._sample_size], self._rows,
                         [x for x in legends], global_step=step, size_per_mol=(320, 320), pattern=pattern)
@@ -79,7 +79,7 @@ class LocalReinforcementLogger(BaseReinforcementLogger):
         aminoacids = [output.amino_acids for output in outputs]
         list_len = [len(i) for i in aminoacids]
         aa_per_row = max(list_len)
-        list_of_mols, legends, pattern = self._check_for_invalid_mols_and_create_legends(smiles, score, score_summary)
+        list_of_mols, legends, pattern = self._check_for_invalid_mols_and_create_legends(smiles, score)
         reported_mols = []
         for indx, mol in enumerate(list_of_mols):
             if mol:
@@ -100,7 +100,7 @@ class LocalReinforcementLogger(BaseReinforcementLogger):
         except:
             self.log_message(f"Error in RDKit has occurred, skipping report for step {step}.")
 
-    def _check_for_invalid_mols_and_create_legends(self, smiles, score, score_summary: FinalSummary):
+    def _check_for_invalid_mols_and_create_legends(self, smiles, score):
         smiles = lu.padding_with_invalid_smiles(smiles, self._sample_size)
         list_of_mols, legend = lu.check_for_invalid_mols_and_create_legend(smiles, score, self._sample_size)
         smarts_pattern = ''

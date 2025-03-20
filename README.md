@@ -42,31 +42,39 @@ Now you can use the tool!
 
 ### Repository Structure
 
-- **`test_data/`**: Test datasets used in the sampling experiments of the manuscript. In case of supplying a new csv file to sampling, a `Source_Mol` column with the masked peptides is needed.  
-- **`models/`**: Pre-trained generative models and the predictive model for macrocyclic peptide permeability.
-- **`pepinvent/`**: Core code for peptide generation and optimization.
+- **`data/`**: Supplementary files including the models, configuration examples, test data and examples on preparing the query peptide input. 
+- **`data/query_peptide_preparation/`**: A jupyter notebook demonstrating how peptides with different topologies can be built by a set of amino acids.
+- **`data/test_data/`**: Test datasets used in the sampling experiments of the manuscript. In case of supplying a new csv file to sampling, a `Source_Mol` column with the masked peptides is needed.  
+- **`data/models/`**: Pre-trained generative models and the predictive model for macrocyclic peptide permeability.
+- **`pepinvent/`**: Core code for supervised learning, peptide generation and optimization.
 - **`reinvent_models/`**: reinvent_models codebase extracted from https://github.com/MolecularAI/transformer_rl/
 - **`experiment_configurations/`**: The configuration files to sample peptides from the pretrained generative model or run RL-based generative runs. The json files indicate the run setups for the experiments conducted in the maunuscript.
 
 ## Usage
 
-The only thing that needs modification for a standard run are the file and folder paths. The generative runs produce logs that can be monitored by tensorboard.
+The only things that needs modification for a standard run are the file and folder paths. The generative runs produce logs that can be monitored by tensorboard.
 
-**1. Sample Peptides from the generative model**: Sample peptides with new amino acids in the query positions using the pre-trained generative model.
+**1. Sample Peptides from the generative model**: Sample peptides with new amino acids in the query positions using the pre-trained generative model. (Ex: `data/experiment_configurations/config_sampling.json`)
 
    ```bash
    python input_to_sampling.py some_sampling_parameters.json
    ```
 
-**2. Generate Peptides with RL**: Design peptides in the RL loop, optimized for user-defined criteria.
+**2. Generate Peptides with RL**: Design peptides in the RL loop, optimized for user-defined criteria. (Ex: `data/experiment_configurations/config_crbp_peptide.json`)
 
    ```bash
    python input_to_reinforcement_learning.py some_generative_run_setup.json
    ```
 
+**3. Supervised Learning**: Train a generative model with your own data. (Ex: `data/experiment_configurations/config_training.json`)
+
+   ```bash
+   python input_to_training.py some_training_setup.json
+   ```
+
 ## Configuration
 
-Model parameters and settings for sampling and RL-based generation are managed through JSON configuration files in the `experiment_configurations/` directory. Each file contains adjustable options to tailor the workflow to different peptide design goals.
+Model parameters and settings for sampling and RL-based generation are managed through JSON configuration files in the `data/experiment_configurations/` directory. Each file contains adjustable options to tailor the workflow to different peptide design goals.
 
 
 ## Citation

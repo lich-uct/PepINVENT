@@ -62,7 +62,8 @@ class Mol2MolModel:
         :param mode: Mode in which the model should be initialized
         :return: An instance of the network
         """
-        data = from_dict(Mol2MolModelParameterDTO, torch.load(path_to_file))
+        loaded = torch.load(path_to_file, weights_only=False)
+        data = from_dict(Mol2MolModelParameterDTO, loaded)
         network = EncoderDecoder(**vars(data.network_parameter))
         network.load_state_dict(data.network_state)
         model = cls(vocabulary=data.vocabulary, network=network,
@@ -77,7 +78,8 @@ class Mol2MolModel:
         data = Mol2MolModelParameterDTO(vocabulary=self.vocabulary, max_sequence_length=self.max_sequence_length,
                                           network_parameter=self.network.get_params(),
                                           network_state=self.network.state_dict())
-        torch.save(data.__dict__, path_to_file)
+        data_dict = data.__dict__
+        torch.save(data_dict, path_to_file)
 
     def likelihood(self, src, src_mask, trg, trg_mask):
         """
@@ -145,9 +147,6 @@ class Mol2MolModel:
                 log_prob = self.network.generator(out[:, -1], self.temperature)
                 prob = torch.exp(log_prob)
 
-                mask_property_token = self.mask_property_tokens(batch_size)
-                prob = prob.masked_fill(mask_property_token, 0)
-
                 if decode_type == self._sampling_modes_enum.GREEDY:
                     _, next_word = torch.max(prob, dim=1)
                     # mask numbers after end token as 0
@@ -179,42 +178,6 @@ class Mol2MolModel:
                       zip(input_smiles_list, output_smiles_list, nlls.detach().cpu().numpy().tolist())]
 
         return result
-
-    def mask_property_tokens(self, batch_size):
-        """
-        Prevent model from sampling the property tokens even though it happens very rarely.
-        The ChEMBL prior in the paper below was trained with property tokens in the vocabulary.
-
-        He, J., Nittinger, E., Tyrchan, C., Czechtizky, W., Patronov, A., Bjerrum, E. J., & Engkvist, O. (2022).
-        Transformer-based molecular optimization beyond matched molecular pairs. Journal of cheminformatics, 14(1), 1-14.
-        """
-        property_tokens = ['LogD_(3.9, 4.1]', 'LogD_(2.5, 2.7]', 'LogD_(5.9, 6.1]', 'LogD_(-6.1, -5.9]',
-                           'LogD_(3.3, 3.5]', 'LogD_(-2.1, -1.9]', 'LogD_(4.7, 4.9]', 'LogD_(-4.5, -4.3]',
-                           'LogD_(0.7, 0.9]', 'LogD_(-0.7, -0.5]', 'LogD_(-4.7, -4.5]', 'LogD_(-5.1, -4.9]',
-                           'LogD_(-6.5, -6.3]', 'LogD_(3.5, 3.7]', 'Solubility_no_change', 'LogD_(-3.7, -3.5]',
-                           'LogD_(-1.9, -1.7]', 'LogD_(-1.5, -1.3]', 'LogD_(-0.3, -0.1]', 'LogD_(6.7, 6.9]',
-                           'LogD_(-1.3, -1.1]', 'LogD_(4.3, 4.5]', 'Clint_no_change', 'LogD_(0.3, 0.5]',
-                           'LogD_(-5.3, -5.1]', 'LogD_(5.7, 5.9]', 'LogD_(-0.9, -0.7]', 'LogD_(5.3, 5.5]',
-                           'LogD_(6.9, inf]', 'LogD_(-3.1, -2.9]', 'LogD_(-3.9, -3.7]', 'LogD_(5.5, 5.7]',
-                           'Clint_low->high', 'LogD_(2.3, 2.5]', 'LogD_(2.9, 3.1]', 'LogD_(6.5, 6.7]',
-                           'LogD_(-2.7, -2.5]', 'LogD_(-5.5, -5.3]', 'LogD_(1.9, 2.1]', 'LogD_(-3.5, -3.3]',
-                           'LogD_(-5.9, -5.7]', 'LogD_(-6.3, -6.1]', 'LogD_(-4.9, -4.7]', 'LogD_(-3.3, -3.1]',
-                           'Solubility_high->low', 'LogD_(-2.3, -2.1]', 'LogD_(5.1, 5.3]', 'LogD_(-0.1, 0.1]',
-                           'LogD_(3.1, 3.3]', 'LogD_(-2.9, -2.7]', 'LogD_(1.1, 1.3]', 'LogD_(-2.5, -2.3]',
-                           'Clint_high->low', 'LogD_(-1.1, -0.9]', 'LogD_(4.5, 4.7]', 'LogD_(-inf, -6.9]',
-                           'LogD_(6.3, 6.5]', 'LogD_(-6.9, -6.7]', 'LogD_(3.7, 3.9]', 'LogD_(-4.1, -3.9]',
-                           'LogD_(1.7, 1.9]', 'LogD_(2.7, 2.9]', 'Solubility_low->high', 'LogD_(4.9, 5.1]',
-                           'LogD_(4.1, 4.3]', 'LogD_(-6.7, -6.5]', 'LogD_(-1.7, -1.5]', 'LogD_(0.1, 0.3]',
-                           'LogD_(-4.3, -4.1]', 'LogD_(2.1, 2.3]', 'LogD_(-0.5, -0.3]', 'LogD_(0.9, 1.1]',
-                           'LogD_(6.1, 6.3]', 'LogD_(0.5, 0.7]', 'LogD_(-5.7, -5.5]', 'LogD_(1.3, 1.5]',
-                           'LogD_(1.5, 1.7]']
-        mask_property_token = torch.zeros(batch_size, len(self.vocabulary), dtype=torch.bool).to(self.device)
-        for p_token in property_tokens:
-            if p_token in self.vocabulary:
-                i = self.vocabulary[p_token]
-                mask_property_token[:, i] = True
-
-        return mask_property_token
 
     def get_network_parameters(self):
         return self.network.parameters()

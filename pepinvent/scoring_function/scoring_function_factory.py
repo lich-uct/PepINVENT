@@ -1,6 +1,7 @@
 from pepinvent.scoring_function.geometric_mean import GeometricMean
 from pepinvent.scoring_function.scoring_component_factory import ScoringComponentFactory
 from pepinvent.scoring_function.scoring_config import ScoringConfig
+from pepinvent.scoring_function.scoring_function_enum import ScoringFunctionsEnum
 from pepinvent.scoring_function.weighted_average import WeightedAverage
 
 
@@ -8,8 +9,8 @@ class ScoringFunctionFactory:
     def __init__(self, parameters: ScoringConfig):
         self._parameters = parameters
         self._component_factory = ScoringComponentFactory()
-        self._registry = {"weighted_average": WeightedAverage,
-                          "geometric_mean": GeometricMean,
+        self._registry = {ScoringFunctionsEnum.WeightedAverage: WeightedAverage,
+                          ScoringFunctionsEnum.GeometricMean : GeometricMean,
                           }
 
     def create_scoring_function(self):

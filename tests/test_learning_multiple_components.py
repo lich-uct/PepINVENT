@@ -44,13 +44,16 @@ class TestMultipleComponents(unittest.TestCase):
         self.result_folder = f'{sampling_paths.test_folder}/results'
 
         logging_config = LoggingConfig(logging_path=self.logging_path, result_path=self.result_folder)
-        learning_configuration = LearningConfig(number_steps=10, batch_size=32, score_multiplier=50)
-        component_1 = ScoringComponentParameters(name='maximum_ring_size', weight=1, specific_parameters={"transformation" : {"transformation_type": "double_sigmoid", "low": 12, "high":40, "coef_div": 10, "coef_si":20, "coef_se":20}})
+        learning_configuration = LearningConfig(number_steps=10, batch_size=16, score_multiplier=80)
+
+        component_1 = ScoringComponentParameters(name='maximum_ring_size', weight=50, specific_parameters={"transformation" : {"transformation_type": "reverse_sigmoid", "low": 12, "high":40, "k":0.25}})
         component_2 = ScoringComponentParameters(name='substructure_match', weight=1, specific_parameters={'transformation': {'transformation_type': 'no_transformation'}, 'smiles': ['SS']})
 
         scoring_function = ScoringConfig(scoring_function='geometric_mean',
-                                         scoring_components=[component_1, component_2])
-        diversity_filter = DiversityFilterParameters(name='IdenticalMurckoScaffold')
+                                         scoring_components = [component_1, component_2])
+
+        diversity_filter = DiversityFilterParameters(name='NoFilter')
+
         self.configuration = ReinforcementLearningConfiguration(name='multiple_components',
                                                                 model_type=model_type.MOL2MOL,
                                                                 model_path=sampling_paths.model_path,

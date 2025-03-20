@@ -9,7 +9,6 @@ class Chemistry:
     def __init__(self):
         self._conversions = Conversions()
 
-    # separate this into 2
     def fill_source_peptide(self, source: str, target: str) -> str:
         source = source.split('|')
         target_merge = target.split('|')

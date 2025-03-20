@@ -116,9 +116,6 @@ class Node:
         )
         self.y = torch.cat((self.y, next_chars), dim=-1)
 
-        # VERY IMPORTANT! we need a mask for
-        # the log likelihood when reaching the eos
-        # self.ll_mask = torch.zeros(len(self.loglikelihood), dtype=torch.bool)
         self.ll_mask = torch.any(self.y == self.vocabulary.eos_token, dim=-1)
 
     def get_actions(self):
@@ -129,8 +126,7 @@ class Node:
         local_dataset = tud.TensorDataset(self.x, self.x_mask, self.y)
         local_loader = tud.DataLoader(local_dataset, batch_size=batch_size)
 
-        # make sure that the local_loader
-        # will be iterated over only once
+        # make sure that the local_loader will be iterated over only once
         iterator = iter(local_loader)
 
         with torch.no_grad():

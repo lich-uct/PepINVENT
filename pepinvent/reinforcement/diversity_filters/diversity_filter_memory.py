@@ -2,22 +2,21 @@ from typing import List, Dict
 
 import pandas as pd
 
-from reinvent_scoring.scoring.enums.scoring_function_component_enum import ScoringFunctionComponentNameEnum
-
+from pepinvent.scoring_function.component_names_enum import ComponentNames
 from pepinvent.scoring_function.score_summary import ComponentSummary
 
 
 class DiversityFilterMemory:
 
     def __init__(self):
-        self._sf_component_name = ScoringFunctionComponentNameEnum()
-        df_dict = {"Step": [], "SampledSequence": [], "SMILES": [], "Scaffold": []}
+        self._sf_component_name = ComponentNames()
+        df_dict = {"Step": [], "CHUCKLES": [], "SMILES": [], "Scaffold": []}
         self._memory_dataframe = pd.DataFrame(df_dict)
 
     def update(self, indx: int, score: float, smile: str, sampled_sequences: str, components: List[ComponentSummary], step: int, scaffold: str = ''):
         component_scores = {c.parameters.name: float(c.total_score[indx]) for c in components}
         component_scores = self._include_raw_score(indx, component_scores, components)
-        component_scores[self._sf_component_name.TOTAL_SCORE] = float(score)
+        component_scores[self._sf_component_name.TotalScore] = float(score)
         if not self.smiles_exists(smile):
             self._add_to_memory_dataframe(step, smile, sampled_sequences, component_scores, scaffold)
 
@@ -29,7 +28,7 @@ class DiversityFilterMemory:
             data.append(score)
         headers.append("Step")
         data.append(step)
-        headers.append("SampledSequence")
+        headers.append("CHUCKLES")
         data.append(sampled_sequences)
         headers.append("SMILES")
         data.append(smile)

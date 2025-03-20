@@ -17,7 +17,7 @@ class TestPredictiveModel(unittest.TestCase):
         params = ScoringComponentParameters(name='predictive_model', weight=1, specific_parameters={
             "transformation": {"transformation_type": "no_transformation"},
             "model_path": f"{ROOT_DIR}/../models/predictive_model.pckl",
-        "scalar_path": f"{ROOT_DIR}/../models/feature_scalar.pckl"})
+            "scalar_path": f"{ROOT_DIR}/../models/feature_scalar.pckl"})
         self.scoring_function_1 = PredictiveModel(params)
 
 

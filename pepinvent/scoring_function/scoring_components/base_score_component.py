@@ -1,13 +1,14 @@
 from abc import abstractmethod, ABC
 
-from reinvent_scoring import ComponentSpecificParametersEnum
-from reinvent_scoring.scoring.enums.transformation_parameters_enum import TransformationParametersEnum
-from reinvent_scoring.scoring.enums.transformation_type_enum import TransformationTypeEnum
-from reinvent_scoring.scoring.score_transformations import TransformationFactory
+
 
 from pepinvent.reinforcement.dto.scoring_input_dto import ScoringInputDTO
+from pepinvent.scoring_function.component_specific_enum import ComponentSpecificParametersEnum
 from pepinvent.scoring_function.score_summary import ComponentSummary
 from pepinvent.scoring_function.scoring_components.scoring_component_parameters import ScoringComponentParameters
+from pepinvent.scoring_function.transformations.score_transformations import TransformationFactory
+from pepinvent.scoring_function.transformations.transformation_parameters_enum import TransformationParametersEnum
+from pepinvent.scoring_function.transformations.transformation_type_enum import TransformationTypeEnum
 
 
 class BaseScoreComponent(ABC):

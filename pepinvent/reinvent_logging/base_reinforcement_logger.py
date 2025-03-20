@@ -3,7 +3,6 @@ import os
 from abc import ABC, abstractmethod
 
 import torch
-from reinvent_scoring.scoring.enums.component_specific_parameters_enum import ComponentSpecificParametersEnum
 
 from pepinvent.reinforcement.dto.output_dto import OutputDTO
 from pepinvent.reinvent_logging.logging_config import LoggingConfig
@@ -15,7 +14,6 @@ class BaseReinforcementLogger(ABC):
         self._log_config = rl_config
         self._setup_workfolder()
         self._logger = self._setup_logger()
-        self._specific_parameters_enum = ComponentSpecificParametersEnum()
 
     @abstractmethod
     def log_message(self, message: str):

@@ -9,5 +9,6 @@ class ComponentNames:
     PredictiveModel: str = 'predictive_model'
     Lipophilicity: str = 'lipophilicity'
     CustomAlerts: str = 'custom_alerts'
+    TotalScore: str = "total_score"  # there is no actual component corresponding to this type
 
 ComponentNamesEnum = ComponentNames()

@@ -1,0 +1,14 @@
+{
+  "name": "pepinvent_training",
+  "training_data_path": "/<your_path>/training/data.csv",
+  "validation_data_path": "/<your_path>/validation/data.csv",
+  "save_directory": "/<your_path>/save/directory",
+  "batch_size": 16,
+  "num_epoch": 1000,
+  "starting_epoch": 1000,
+  "max_sequence_length": 500,
+  "run_type": "training"
+}
+
+
+

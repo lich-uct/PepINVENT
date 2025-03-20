@@ -28,9 +28,4 @@ class GenerativeModelBase(ABC):
         raise NotImplementedError("get_network_parameters method is not implemented")
 
     def get_vocabulary(self):
-        # FIXME all models return different data structures
-        # for lib and link_invent, model.vocabulary is a combination of two vocabularies and their tokenizers
-        # link_invent -> PairedModelVocabulary
-        # lib_invent -> DecoratorVocabulary
-        # reinvent_core -> Vocabulary
         raise NotImplementedError("get_vocabulary method is not implemented")
