@@ -1,7 +1,9 @@
+import os
 from typing import List, Dict, Union
 
 import torch.utils.data as tud
 import pandas as pd
+from tqdm import tqdm
 
 from pepinvent.reinforcement.chemistry import Chemistry
 from reinvent_models.model_factory.dto.sampled_sequence_dto import SampledSequencesDTO
@@ -20,7 +22,7 @@ class Sampling:
 
     def _sample(self, sequences: List[str]) -> Dict[str, List[SampledSequencesDTO]]:
         sequence_dtos = {}
-        for sequence in sequences:
+        for sequence in tqdm(sequences, desc="Sampling sequences"):
             input_sequences = self._config.num_samples * [sequence]
 
             dataset = Dataset(input_sequences, vocabulary=self._agent.vocabulary, tokenizer=self._agent.tokenizer)
@@ -28,13 +30,13 @@ class Sampling:
                 dataset, self._config.batch_size, shuffle=False, collate_fn=Dataset.collate_fn
             )
 
-            for batch in data_loader:
+            for batch in tqdm(data_loader, desc="Processing batches", leave=False):
                 src, src_mask = batch
                 dtos = self._agent.sample(src, src_mask)
                 for dto in dtos:
                     try:
                         sequence_dtos[dto.input].append(dto)
-                    except:
+                    except KeyError:
                         sequence_dtos[dto.input] = [dto]
         return sequence_dtos
 
