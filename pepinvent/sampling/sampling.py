@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 from typing import List, Dict, Union
 
 import torch.utils.data as tud
@@ -52,22 +52,24 @@ class Sampling:
         return masked_peptides
 
     def _create_report(self, results: Dict[str, List[SampledSequencesDTO]]) -> pd.DataFrame:
-        dataframe = pd.DataFrame(columns=['Input', 'Output', 'NLLs'])
+        rows = []
         for key in results.keys():
             outputs = [dto.output for dto in results[key]]
             nlls = [dto.nll for dto in results[key]]
 
             new_row = {'Input': key, 'Output': outputs, 'NLLs': nlls}
-
-            dataframe = dataframe.append(new_row, ignore_index=True)
+            rows.append(new_row)
+        dataframe = pd.DataFrame(rows)
 
         column_labels = [f'Generated_smi_{x}' for x in range(1, len(results[key]) + 1)]
         split = pd.DataFrame(dataframe['Output'].to_list(), columns=column_labels)
         dataframe = pd.concat([dataframe, split], axis=1)
         dataframe = dataframe.drop('Output', axis=1)
 
-
         return dataframe
 
     def _save_reports(self, output: pd.DataFrame):
-        output.to_csv(self._config.results_output)
+
+        results_output_path = Path(self._config.results_output)
+        results_output_path.parent.mkdir(parents=True, exist_ok=True)
+        output.to_csv(results_output_path)
