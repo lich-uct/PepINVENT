@@ -1,0 +1,12 @@
+{
+  "name": "pepinvent_training",
+  "training_data_path": "./input_csv/generative_model_training.csv",
+  "validation_data_path": "./input_csv/generative_model_validation.csv",
+  "save_directory": "./data/models/finetuned_model",
+  "batch_size": 16,
+  "drop_last_batch": "False",
+  "num_epoch": 1000,
+  "starting_epoch": 2,
+  "max_sequence_length": 20,
+  "run_type": "training"
+}
