@@ -16,7 +16,7 @@ class LabelSmoothing(nn.Module):
         self.true_dist = None
 
     def forward(self, x, target):
-        assert x.size(1) == self.size
+        assert x.size(1) == self.size, f"Error: {x.size(1)} != {self.size}"
         true_dist = x.data.clone()
         true_dist.fill_(self.smoothing / (self.size - 2))
         true_dist.scatter_(1, target.data.unsqueeze(1), self.confidence)

@@ -1,4 +1,5 @@
 import os
+import pickle
 
 import numpy as np
 import torch
@@ -33,7 +34,7 @@ class TransformerTrainer(BaseTrainer):
                                  max_sequence_length=self._config.max_sequence_length,
                                  no_cuda=not self._config.use_cuda)
         else:
-            file_name = os.path.join(self.save_path, f'checkpoint/model_{self._config.starting_epoch - 1}.ckpt')
+            file_name = os.path.join('./data/models/generative_model.ckpt')
             model = Mol2MolModel.load_from_file(file_name)
 
         return model
@@ -55,19 +56,33 @@ class TransformerTrainer(BaseTrainer):
         return optim
 
     def get_optimization(self, model):
-        if self._config.starting_epoch == 1:
-            optim = self._initialize_optimizer(model)
-        else:
-            # load optimization
-            file_name = os.path.join(self.save_path, f'checkpoint/optimizer_{self._config.starting_epoch - 1}.ckpt')
-            optim = self._load_optimizer_from_epoch(model, file_name)
-        return optim
+        # if self._config.starting_epoch == 1:
+        #     optim = self._initialize_optimizer(model)
+        # else:
+        #     # load optimization
+        #     file_name = os.path.join(self.save_path, f'checkpoint/optimizer_{self._config.starting_epoch - 1}.ckpt')
+        #     optim = self._load_optimizer_from_epoch(model, file_name)
+        return self._initialize_optimizer(model)
 
     def execute(self):
         # Load vocabulary
-        vocabulary_maker = VocabularyMaker()
-        vocab = vocabulary_maker.create_vocabulary(self._config.training_data_path, self._config.validation_data_path)
-        vocab_size = len(vocab.tokens())
+        vocab_file_name = os.path.join(self.save_path, 'vocab.pkl')
+        if os.path.exists(vocab_file_name):
+            print("Loading vocabulary...")
+            with open(vocab_file_name, 'rb') as f:
+                vocab = pickle.load(f)
+            vocab_size = len(vocab.tokens())
+            print(f"Loaded vocabulary with size: {vocab_size}")
+        else:
+            print("Creating vocabulary...")
+            vocabulary_maker = VocabularyMaker()
+            vocab = vocabulary_maker.create_vocabulary(self._config.training_data_path, self._config.validation_data_path)
+            vocab_size = len(vocab.tokens())
+            print(f"Created vocabulary with size: {vocab_size}")
+            # Pickle vocabulary for later use
+            with open(vocab_file_name, 'wb') as f:
+                pickle.dump(vocab, f)
+            print(f"Vocabulary saved to: {vocab_file_name}")
 
         # Data loader
         dataloader_train = self.initialize_dataloader(self._config.training_data_path, self._config.batch_size, vocab)
